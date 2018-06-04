@@ -386,6 +386,26 @@ public class PluginManager
 		return pluginDescriptor == null || pluginDescriptor.enabledByDefault();
 	}
 
+	public void setPluginPinned(Plugin plugin, boolean pinned)
+	{
+		final String keyName = plugin.getClass().getSimpleName().toLowerCase() + ".pinned";
+		configManager.setConfiguration(runeliteGroupName, keyName, String.valueOf(pinned));
+	}
+
+	public boolean isPluginPinned(Plugin plugin)
+	{
+		final String keyName = plugin.getClass().getSimpleName().toLowerCase() + ".pinned";
+		final String value = configManager.getConfiguration(runeliteGroupName, keyName);
+
+		if (value != null)
+		{
+			return Boolean.valueOf(value);
+		}
+
+		final PluginDescriptor pluginDescriptor = plugin.getClass().getAnnotation(PluginDescriptor.class);
+		return pluginDescriptor == null || pluginDescriptor.pinnedByDefault();
+	}
+
 	private Plugin instantiate(List<Plugin> scannedPlugins, Class<Plugin> clazz) throws PluginInstantiationException
 	{
 		PluginDependency[] pluginDependencies = clazz.getAnnotationsByType(PluginDependency.class);
