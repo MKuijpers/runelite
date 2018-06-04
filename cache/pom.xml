@@ -37,7 +37,7 @@
 
 	<properties>
 		<cache.version>165</cache.version>
-		
+
 		<antlr4.version>4.6</antlr4.version>
 	</properties>
 
@@ -87,7 +87,7 @@
 			<artifactId>lombok</artifactId>
 			<scope>provided</scope>
 		</dependency>
-		
+
 		<dependency>
 			<groupId>junit</groupId>
 			<artifactId>junit</artifactId>
@@ -107,7 +107,7 @@
 			<scope>test</scope>
 		</dependency>
 	</dependencies>
-	
+
 	<build>
 		<testResources>
 			<testResource>

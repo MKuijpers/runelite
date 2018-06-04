@@ -25,11 +25,8 @@
 package net.runelite.client.plugins.config;
 
 import com.google.common.base.Strings;
-import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.Component;
-import java.awt.Dimension;
-import java.awt.GridLayout;
+
+import java.awt.*;
 import java.awt.event.FocusAdapter;
 import java.awt.event.FocusEvent;
 import java.awt.event.ItemEvent;
@@ -39,33 +36,23 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 import java.util.TreeMap;
 import java.util.concurrent.ScheduledExecutorService;
 import javax.imageio.ImageIO;
-import javax.swing.BorderFactory;
-import javax.swing.ImageIcon;
-import javax.swing.JButton;
-import javax.swing.JCheckBox;
-import javax.swing.JColorChooser;
-import javax.swing.JComboBox;
-import javax.swing.JComponent;
-import javax.swing.JFormattedTextField;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.JSpinner;
-import javax.swing.JTextArea;
-import javax.swing.SpinnerModel;
-import javax.swing.SpinnerNumberModel;
-import javax.swing.SwingConstants;
+import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import javax.swing.event.ChangeListener;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
+
+import com.google.common.collect.Sets;
 import lombok.extern.slf4j.Slf4j;
 import net.runelite.client.config.ChatColorConfig;
 import net.runelite.client.config.Config;
@@ -78,6 +65,7 @@ import net.runelite.client.plugins.Plugin;
 import net.runelite.client.plugins.PluginDescriptor;
 import net.runelite.client.plugins.PluginInstantiationException;
 import net.runelite.client.plugins.PluginManager;
+import net.runelite.client.ui.ClientUI;
 import net.runelite.client.ui.ColorScheme;
 import net.runelite.client.ui.DynamicGridLayout;
 import net.runelite.client.ui.PluginPanel;
@@ -95,6 +83,8 @@ public class ConfigPanel extends PluginPanel
 	private static final ImageIcon ON_SWITCHER;
 	private static final ImageIcon OFF_SWITCHER;
 	private static final ImageIcon SEARCH;
+	private static final ImageIcon PINNED;
+	private static final ImageIcon UNPINNED;
 
 	static
 	{
@@ -107,6 +97,8 @@ public class ConfigPanel extends PluginPanel
 				CONFIG_ICON_HOVER = new ImageIcon(SwingUtil.grayscaleOffset(configIcon, -100));
 				ON_SWITCHER = new ImageIcon(ImageIO.read(ConfigPanel.class.getResourceAsStream("switchers/on.png")));
 				OFF_SWITCHER = new ImageIcon(ImageIO.read(ConfigPanel.class.getResourceAsStream("switchers/off.png")));
+				PINNED = new ImageIcon(ImageIO.read(ConfigPanel.class.getResourceAsStream("switchers/pinned.png")));
+				UNPINNED = new ImageIcon(ImageIO.read(ConfigPanel.class.getResourceAsStream("switchers/unpinned.png")));
 				SEARCH = new ImageIcon(ImageIO.read(IconTextField.class.getResourceAsStream("search.png")));
 			}
 		}
@@ -123,6 +115,7 @@ public class ConfigPanel extends PluginPanel
 	private final ChatColorConfig chatColorConfig;
 	private final IconTextField searchBar = new IconTextField();
 	private Map<String, JPanel> children = new TreeMap<>();
+	private Set<String> pinnedPlugins = new HashSet<>();
 	private int scrollBarPosition = 0;
 
 	public ConfigPanel(PluginManager pluginManager, ConfigManager configManager, ScheduledExecutorService executorService,
@@ -172,6 +165,7 @@ public class ConfigPanel extends PluginPanel
 	{
 		scrollBarPosition = getScrollPane().getVerticalScrollBar().getValue();
 		Map<String, JPanel> newChildren = new TreeMap<>();
+		Set<String> newPinnedPlugins = new HashSet<>();
 
 		pluginManager.getPlugins().stream()
 			.filter(plugin -> !plugin.getClass().getAnnotation(PluginDescriptor.class).hidden())
@@ -180,11 +174,20 @@ public class ConfigPanel extends PluginPanel
 			{
 				final Config pluginConfigProxy = pluginManager.getPluginConfigProxy(plugin);
 				final String pluginName = plugin.getClass().getAnnotation(PluginDescriptor.class).name();
+				final boolean pinned = pluginManager.isPluginPinned(plugin);
 
 				final JPanel groupPanel = buildGroupPanel();
 
 				JLabel name = new JLabel(pluginName);
 				name.setForeground(Color.WHITE);
+
+				final JPanel pinnedPanel = new JPanel();
+				pinnedPanel.setLayout(new GridLayout(1, 1));
+				groupPanel.add(pinnedPanel, BorderLayout.LINE_START);
+
+				final JLabel pinnedButton = buildPinButton(plugin);
+				pinnedButton.setHorizontalAlignment(SwingConstants.LEFT);
+				pinnedPanel.add(pinnedButton);
 
 				groupPanel.add(name, BorderLayout.CENTER);
 
@@ -200,16 +203,21 @@ public class ConfigPanel extends PluginPanel
 				buttonPanel.add(toggleButton);
 
 				newChildren.put(pluginName, groupPanel);
+				if (pinned)
+				{
+					newPinnedPlugins.add(pluginName);
+				}
 			});
 
-		addCoreConfig(newChildren, "RuneLite", runeLiteConfig);
-		addCoreConfig(newChildren, "Chat Color", chatColorConfig);
+		addCoreConfig(newChildren, newPinnedPlugins, "RuneLite", runeLiteConfig);
+		addCoreConfig(newChildren, newPinnedPlugins, "Chat Color", chatColorConfig);
 
 		children = newChildren;
+		pinnedPlugins = newPinnedPlugins;
 		openConfigList();
 	}
 
-	private void addCoreConfig(Map<String, JPanel> newChildren, String configName, Config config)
+	private void addCoreConfig(Map<String, JPanel> newChildren, Set<String> newPinnedPlugins, String configName, Config config)
 	{
 		final JPanel groupPanel = buildGroupPanel();
 
@@ -230,6 +238,7 @@ public class ConfigPanel extends PluginPanel
 		buttonPanel.add(toggleButton);
 
 		newChildren.put(configName, groupPanel);
+		newPinnedPlugins.add(configName);
 	}
 
 	private JPanel buildGroupPanel()
@@ -283,6 +292,44 @@ public class ConfigPanel extends PluginPanel
 		}
 
 		return editConfigButton;
+	}
+
+	private JLabel buildPinButton(Plugin plugin)
+	{
+		// Create enabling/disabling button
+		final JLabel pinButton = new JLabel();
+		pinButton.setPreferredSize(new Dimension(25, 25));
+
+
+		if (PINNED != null)
+		{
+			pinButton.setIcon(PINNED);
+		}
+
+		if (plugin == null)
+		{
+			pinButton.setEnabled(false);
+			return pinButton;
+		}
+
+		highlightPinned(pinButton, pluginManager.isPluginPinned(plugin));
+
+		pinButton.addMouseListener(new MouseAdapter()
+		{
+			@Override
+			public void mousePressed(MouseEvent mouseEvent)
+			{
+				executorService.submit(() ->
+				{
+					final boolean pinned = pluginManager.isPluginPinned(plugin);
+					pluginManager.setPluginPinned(plugin, !pinned);
+					highlightPinned(pinButton, !pinned);
+					onSearchBarChanged();
+				});
+			}
+		});
+
+		return pinButton;
 	}
 
 	private JLabel buildToggleButton(Plugin plugin)
@@ -339,6 +386,12 @@ public class ConfigPanel extends PluginPanel
 		button.setToolTipText(enabled ? "Disable plugin" : "Enable plugin");
 	}
 
+	private void highlightPinned(JLabel button, boolean pinned)
+	{
+		button.setIcon(pinned ? PINNED : UNPINNED);
+		button.setToolTipText(pinned ? "Unpin plugin" : "Pin plugin");
+	}
+
 	private void onSearchBarChanged()
 	{
 		final String text = searchBar.getText();
@@ -347,7 +400,16 @@ public class ConfigPanel extends PluginPanel
 
 		if (text.isEmpty())
 		{
-			children.values().forEach(this::add);
+			Map<String, JPanel> pinnedChildren = new TreeMap<>(children);
+			pinnedChildren.keySet().retainAll(pinnedPlugins);
+			Map<String, JPanel> unPinnedChildren = new TreeMap<>(children);
+			unPinnedChildren.keySet().removeAll(pinnedPlugins);
+
+			pinnedChildren.values().forEach(this::add);
+//			add(new JSeparator());
+			unPinnedChildren.values().forEach(this::add);
+
+//			children.values().forEach(this::add);
 			revalidate();
 			return;
 		}
