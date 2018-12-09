@@ -1,0 +1,348 @@
+.id                 2732
+.int_stack_count    1
+.string_stack_count 0
+.int_var_count      13
+.string_var_count   1
+   load_int               40697875
+   istore                 1
+   load_int               40697891
+   istore                 2
+   load_int               40697892
+   istore                 3
+   load_int               0
+   istore                 4				; X position of item in widget
+   load_int               0
+   istore                 5				; Y position of item in widget
+   iload                  0
+   load_int               690
+   6516                  
+   istore                 6				; Some kind of ID for the collection log category
+   load_int               0
+   istore                 7				; ID for the collection log category
+   iload                  6
+   3411                  				; Get total items based of collection log category
+   istore                 8				; Total items
+   load_int               0
+   istore                 9				; 0 is the item is not obtained, 1 if the item is obtained
+   load_int               0
+   istore                 10			; # obtained items (counting for each item, the amount of obtained items before this item)
+   load_string            ""
+   sstore                 0
+   load_int               -1
+   istore                 11			; Item ID
+   load_int               -1
+   istore                 12
+   iload                  1
+   widget_unset_children 
+   iload                  1
+   load_int               4
+   load_int               0
+   widget_create_child   
+   iload                  0
+   load_int               689
+   6516                  
+   sstore                 0
+   sload                  0
+   widget_put_text       
+   load_int               496
+   widget_put_fontid     
+   load_int               0
+   load_int               1
+   load_int               0
+   widget_put_text_alignment
+   load_int               1
+   widget_put_text_shadowed
+   load_int               16750623
+   widget_put_textcolor  
+   load_int               0
+   load_int               0
+   load_int               0
+   load_int               0
+   widget_put_position   
+   sload                  0
+   iload                  1
+   widget_get_width_widget
+   load_int               496
+   get_max_line_width    
+   load_int               20
+   load_int               0
+   load_int               0
+   widget_put_size       
+   iload                  2
+   widget_unset_children 
+LABEL67:
+   iload                  7
+   iload                  8
+   if_icmplt              LABEL71
+   jump                   LABEL169
+LABEL71:
+   iload                  4
+   iload                  2
+   widget_get_width_widget
+   if_icmpgt              LABEL76
+   jump                   LABEL82
+LABEL76:
+   load_int               0
+   istore                 4
+   iload                  5
+   load_int               36
+   iadd                  
+   istore                 5
+LABEL82:
+   load_int               105
+   load_int               79
+   iload                  6
+   iload                  7
+   get_enum_value        
+   istore                 11
+   load_int               620
+   iload                  11
+   get_itemcontainer_stacksizes_total
+   istore                 9
+   load_int               79
+   load_int               79
+   load_int               2108
+   iload                  11
+   get_enum_value        
+   istore                 12
+   get_varbit             6907
+   load_int               1
+   if_icmpeq              LABEL102
+   jump                   LABEL108
+LABEL102:
+   iload                  12
+   load_int               -1
+   if_icmpne              LABEL106
+   jump                   LABEL108
+LABEL106:
+   iload                  12
+   istore                 11
+LABEL108:
+   iload                  2
+   load_int               5
+   iload                  7
+   widget_create_child   
+   load_int               1
+   widget_put_borderthickness
+   iload                  4
+   iload                  5
+   load_int               0
+   load_int               0
+   widget_put_position   
+   load_int               36
+   load_int               32
+   load_int               0
+   load_int               0
+   widget_put_size       
+   load_int               1
+   load_string            "Check"
+   widget_put_action     
+   load_string            "<col=ff9040>"
+   ;iload                  11
+   ;get_item_name
+   iload                  6
+   int_to_string
+   load_string            " "
+   iload                  7
+   int_to_string
+   load_string            "</col>"
+   ;string_append          3
+   string_append          5
+   widget_put_name       
+   load_int               2733
+   iload                  11
+   iload                  9
+   load_string            "oi"
+   widget_put_option_click_listener
+   iload                  9
+   load_int               1
+   if_icmpgt              LABEL142
+   jump                   LABEL146
+LABEL142:
+   iload                  11
+   iload                  9
+   1200                  					; Takes item ID and var as input, changes var if the player has input item
+   jump                   LABEL149
+LABEL146:
+   iload                  11
+   load_int               1
+   1205                  
+LABEL149:
+   iload                  9
+   load_int               0
+   if_icmpeq              LABEL153
+   jump                   LABEL156
+LABEL153:
+   load_int               175
+   widget_put_opacity    
+   jump                   LABEL160
+LABEL156:
+   iload                  10
+   load_int               1
+   iadd                  
+   istore                 10
+LABEL160:
+   iload                  7
+   load_int               1
+   iadd                  
+   istore                 7
+   iload                  4
+   load_int               42
+   iadd                  
+   istore                 4
+   jump                   LABEL67
+LABEL169:
+   iload                  5
+   load_int               36
+   iadd                  
+   istore                 5
+   iload                  5
+   iload                  2
+   widget_get_height_widget
+   if_icmpgt              LABEL178
+   jump                   LABEL183
+LABEL178:
+   load_int               0
+   iload                  5
+   iload                  2
+   widget_put_scrollwidthheight_widget
+   jump                   LABEL187
+LABEL183:
+   load_int               0
+   load_int               0
+   iload                  2
+   widget_put_scrollwidthheight_widget
+LABEL187:
+   load_int               0
+   load_int               0
+   iload                  2
+   widget_put_scroll_widget
+   iload                  3
+   widget_unset_children 
+   iload                  3
+   iload                  2
+   load_int               792
+   load_int               789
+   load_int               790
+   load_int               791
+   load_int               773
+   load_int               788
+   invoke                 31
+   iload                  1
+   load_int               4
+   load_int               1
+   widget_create_child   
+   load_string            "Obtained: "
+   sstore                 0
+   iload                  10
+   iload                  8
+   if_icmpeq              LABEL212
+   jump                   LABEL223
+LABEL212:										; All items are collected
+   sload                  0
+   load_string            "<col=0dc10d>"
+   iload                  10
+   int_to_string         
+   load_string            "/"
+   iload                  8
+   int_to_string         
+   load_string            "</col>"
+   string_append          6
+   sstore                 0
+   jump                   LABEL248
+LABEL223:										; Items are still needed
+   iload                  10
+   load_int               0
+   if_icmpgt              LABEL227
+   jump                   LABEL238
+LABEL227:
+   sload                  0
+   load_string            "<col=ffff00>"
+   iload                  10
+   int_to_string         
+   load_string            "/"
+   iload                  8
+   int_to_string         
+   load_string            "</col>"
+   string_append          6
+   sstore                 0
+   jump                   LABEL248
+LABEL238:
+   sload                  0
+   load_string            "<col=ff0000>"
+   iload                  10
+   int_to_string         
+   load_string            "/"
+   iload                  8
+   int_to_string         
+   load_string            "</col>"
+   string_append          6
+   sstore                 0
+LABEL248:
+   sload                  0
+   widget_put_text       
+   load_int               494
+   widget_put_fontid     
+   load_int               0
+   load_int               1
+   load_int               0
+   widget_put_text_alignment
+   load_int               1
+   widget_put_text_shadowed
+   load_int               16750623
+   widget_put_textcolor  
+   load_int               0
+   load_int               0
+   load_int               0
+   load_int               2
+   widget_put_position   
+   sload                  0
+   iload                  1
+   widget_get_width_widget
+   load_int               494
+   get_max_line_width    
+   load_int               20
+   load_int               0
+   load_int               0
+   widget_put_size       
+   iload                  0
+   invoke                 2735
+   sstore                 0
+   sload                  0
+   string_length         
+   load_int               0
+   if_icmpne              LABEL282
+   jump                   LABEL312
+LABEL282:
+   iload                  1
+   load_int               4
+   load_int               2
+   widget_create_child   
+   sload                  0
+   widget_put_text       
+   load_int               494
+   widget_put_fontid     
+   load_int               0
+   load_int               1
+   load_int               0
+   widget_put_text_alignment
+   load_int               1
+   widget_put_text_shadowed
+   load_int               16750623
+   widget_put_textcolor  
+   load_int               0
+   load_int               0
+   load_int               2
+   load_int               2
+   widget_put_position   
+   sload                  0
+   iload                  1
+   widget_get_width_widget
+   load_int               494
+   get_max_line_width    
+   load_int               20
+   load_int               0
+   load_int               0
+   widget_put_size       
+LABEL312:
+   return                

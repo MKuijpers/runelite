@@ -123,6 +123,7 @@ public class WidgetID
 	public static final int KOUREND_FAVOUR_GROUP_ID = 246;
 	public static final int LOOTING_BAG_GROUP_ID = 81;
 	public static final int SKOTIZO_GROUP_ID = 308;
+	public static final int COLLECTION_LOG_GROUP_ID = 621;
 
 	static class WorldMap
 	{
@@ -197,6 +198,25 @@ public class WidgetID
 		static final int NAME = 3;
 		static final int OWNER = 5;
 		static final int LIST = 15;
+	}
+
+	static class CollectionLog
+	{
+		static final int CONTAINER = 2;
+		static final int TABS = 3;
+		static final int BOSSES_TAB = 4;
+		static final int RAIDS_TAB = 5;
+		static final int CLUES_TAB = 6;
+		static final int MINIGAMES_TAB = 7;
+		static final int OTHER_TAB = 8;
+		static final int COLLECTION_LOG_ITEM_LIST_CONTAINER = 9;
+		static final int COLLECTION_LOG_PROGRESS = 19;
+		static final int COLLECTION_LOG_ITEM_LIST_BOSSES = 12;
+		static final int COLLECTION_LOG_ITEM_LIST_RAIDS = 16;
+		static final int COLLECTION_LOG_ITEM_LIST_CLUES = 31;
+		static final int COLLECTION_LOG_ITEM_LIST_MINIGAMES = 34;
+		static final int COLLECTION_LOG_ITEM_LIST_OTHER = 33;
+
 	}
 
 	static class Bank
