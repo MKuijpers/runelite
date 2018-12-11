@@ -7,10 +7,6 @@ import net.runelite.client.config.ConfigItem;
 @ConfigGroup("collectionlog")
 public interface CollectionLogConfig extends Config
 {
-	String CONFIG_GROUP = "collectionlog";
-	String PROGRESS = "progress";
-	String QUANTITY = "quantity";
-
 	@ConfigItem(
 		keyName = "colorItems",
 		name = "Color items",

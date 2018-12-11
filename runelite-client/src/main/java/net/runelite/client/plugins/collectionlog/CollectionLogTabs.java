@@ -1,16 +1,43 @@
 package net.runelite.client.plugins.collectionlog;
 
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+import net.runelite.api.widgets.WidgetInfo;
+
+@Getter
+@RequiredArgsConstructor
 public enum CollectionLogTabs
 {
-	BOSSES,
-	RAIDS,
-	CLUES,
-	MINIGAMES,
-	OTHER;
+	BOSSES("Bosses"),
+	RAIDS("Raids"),
+	CLUES("Clues"),
+	MINIGAMES("Minigames"),
+	OTHER("Other");
 
-	public static CollectionLogTabs fromTabIndex(int i)
+	private final String displayName;
+
+	public static WidgetInfo toTitleWidgetInfo(CollectionLogTabs tab)
 	{
-		switch (i)
+		switch (tab)
+		{
+			case BOSSES:
+				return WidgetInfo.COLLECTION_LOG_BOSSES;
+			case RAIDS:
+				return WidgetInfo.COLLECTION_LOG_RAIDS;
+			case CLUES:
+				return WidgetInfo.COLLECTION_LOG_CLUES;
+			case MINIGAMES:
+				return WidgetInfo.COLLECTION_LOG_MINIGAMES;
+			case OTHER:
+				return WidgetInfo.COLLECTION_LOG_OTHER;
+			default:
+				return null;
+		}
+	}
+
+	public static CollectionLogTabs fromTabIndex(int tab)
+	{
+		switch (tab)
 		{
 			case 0:
 				return BOSSES;
@@ -24,5 +51,37 @@ public enum CollectionLogTabs
 				return OTHER;
 		}
 		return null;
+	}
+
+	public static WidgetInfo listWidgetInfoFromTab(CollectionLogTabs tab)
+	{
+		switch (tab)
+		{
+			case BOSSES:
+				return WidgetInfo.COLLECTION_LOG_ITEM_LIST_BOSSES;
+			case RAIDS:
+				return WidgetInfo.COLLECTION_LOG_ITEM_LIST_RAIDS;
+			case CLUES:
+				return WidgetInfo.COLLECTION_LOG_ITEM_LIST_CLUES;
+			case MINIGAMES:
+				return WidgetInfo.COLLECTION_LOG_ITEM_LIST_MINIGAMES;
+			case OTHER:
+				return WidgetInfo.COLLECTION_LOG_ITEM_LIST_OTHER;
+			default:
+				return null;
+		}
+	}
+
+	public static WidgetInfo listWidgetInfoFromTabIndex(int tabIndex)
+	{
+
+		CollectionLogTabs tab = fromTabIndex(tabIndex);
+
+		if (tab == null)
+		{
+			return null;
+		}
+
+		return listWidgetInfoFromTab(tab);
 	}
 }

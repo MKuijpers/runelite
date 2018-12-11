@@ -9,7 +9,7 @@ import lombok.RequiredArgsConstructor;
 
 @Getter
 @RequiredArgsConstructor
-public enum CollectionLogItems
+public enum CollectionLogCategories
 {
 	ABYSSAL_SIRE(CollectionLogTabs.BOSSES, "Abyssal Sire"),
 	BARROWS_CHEST(CollectionLogTabs.BOSSES, "Barrows Chests"),
@@ -77,73 +77,28 @@ public enum CollectionLogItems
 	TZHAAR(CollectionLogTabs.OTHER,  "TzHaar"),
 	MISCELLANEOUS(CollectionLogTabs.OTHER,  "Miscellaneous");
 
-//	private static final List<CollectionLogItems> BOSSES = new ArrayList<>();
-//	private static final List<CollectionLogItems> RAIDS = new ArrayList<>();
-//	private static final List<CollectionLogItems> CLUES = new ArrayList<>();
-//	private static final List<CollectionLogItems> MINIGAMES = new ArrayList<>();
-//	private static final List<CollectionLogItems> OTHER = new ArrayList<>();
-//	public static final List<List<CollectionLogItems>> ALLTABS = new ArrayList<>();
+	private final CollectionLogTabs type;
+	private final String displayName;
 
-	private static final Map<CollectionLogTabs, List<CollectionLogItems>> ALL_ITEMS = new HashMap<>();
+	private static final Map<CollectionLogTabs, List<CollectionLogCategories>> ALL_CATEGORIES = new HashMap<>();
 
 	static
 	{
-		for (CollectionLogItems item : values())
+		for (CollectionLogCategories category : values())
 		{
-//			switch (item.getType())
-//			{
-//				case BOSSES:
-//					BOSSES.add(item);
-//					break;
-//				case RAIDS:
-//					RAIDS.add(item);
-//					break;
-//				case CLUES:
-//					CLUES.add(item);
-//					break;
-//				case MINIGAMES:
-//					MINIGAMES.add(item);
-//					break;
-//				case OTHER:
-//					OTHER.add(item);
-//					break;
-//			}
-			List<CollectionLogItems> list = ALL_ITEMS.getOrDefault(item.getType(), new ArrayList<>());
-			list.add(item);
-			ALL_ITEMS.put(item.getType(), list);
+			List<CollectionLogCategories> list = ALL_CATEGORIES.getOrDefault(category.getType(), new ArrayList<>());
+			list.add(category);
+			ALL_CATEGORIES.put(category.getType(), list);
 		}
-
-//		ALLTABS.add(BOSSES);
-//		ALLTABS.add(RAIDS);
-//		ALLTABS.add(CLUES);
-//		ALLTABS.add(MINIGAMES);
-//		ALLTABS.add(OTHER);
 	}
 
-	public static List<CollectionLogItems> getItemsFromTab(CollectionLogTabs tab)
+	public static List<CollectionLogCategories> fromTab(CollectionLogTabs tab)
 	{
-		return ALL_ITEMS.getOrDefault(tab, new ArrayList<>());
-//		switch (tab)
-//		{
-//			case BOSSES:
-//				return BOSSES;
-//			case RAIDS:
-//				return RAIDS;
-//			case CLUES:
-//				return CLUES;
-//			case MINIGAMES:
-//				return MINIGAMES;
-//			case OTHER:
-//				return OTHER;
-//		}
-//		return new ArrayList<>();
+		return ALL_CATEGORIES.getOrDefault(tab, new ArrayList<>());
 	}
 
-	public static List<CollectionLogItems> getItemsFromTabIndex(int tabIndex)
+	public static List<CollectionLogCategories> fromTabIndex(int tabIndex)
 	{
-		return ALL_ITEMS.getOrDefault(CollectionLogTabs.fromTabIndex(tabIndex), new ArrayList<>());
+		return ALL_CATEGORIES.getOrDefault(CollectionLogTabs.fromTabIndex(tabIndex), new ArrayList<>());
 	}
-
-	private final CollectionLogTabs type;
-	private final String displayName;
 }
