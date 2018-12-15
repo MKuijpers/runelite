@@ -203,7 +203,7 @@ public class WidgetID
 
 	static class CollectionLog
 	{
-		static final int ELEMENTS = 1;
+		static final int ROOT = 1;
 		static final int CONTAINER = 2;
 		static final int TABS = 3;
 		static final int BOSSES_TAB = 4;

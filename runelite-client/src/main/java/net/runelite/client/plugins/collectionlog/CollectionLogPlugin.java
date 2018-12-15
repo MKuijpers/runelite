@@ -8,8 +8,6 @@ import java.util.regex.Pattern;
 import javax.inject.Inject;
 import lombok.extern.slf4j.Slf4j;
 import net.runelite.api.Client;
-import net.runelite.api.InventoryID;
-import net.runelite.api.ItemContainer;
 import net.runelite.api.Varbits;
 import net.runelite.api.events.GameTick;
 import net.runelite.api.widgets.Widget;
@@ -18,6 +16,8 @@ import net.runelite.client.config.ConfigManager;
 import net.runelite.client.eventbus.Subscribe;
 import net.runelite.client.plugins.Plugin;
 import net.runelite.client.plugins.PluginDescriptor;
+import net.runelite.client.plugins.collectionlog.config.ConfigKey;
+import net.runelite.client.ui.overlay.OverlayManager;
 
 @PluginDescriptor(
 	name = "Collection Log",
@@ -32,18 +32,23 @@ public class CollectionLogPlugin extends Plugin
 	private Client client;
 
 	@Inject
+	private OverlayManager overlayManager;
+
+	@Inject
 	private ConfigManager configManager;
+
+	@Inject
+	private CollectionLogOverlay overlay;
 
 	@Inject
 	private CollectionLogConfig config;
 
 	private static final String PERC_COLOR = "ffce95";
+	private static final String COMPLETED_COLOR = "27dC49";
 	private static final Pattern OBTAINED_FORMAT = Pattern.compile("Obtained: <col=.+>([0-9]+)/([0-9]+)</col>");
 	private static final Splitter DOT_SPLITTER = Splitter.on(".")
 		.trimResults()
 		.omitEmptyStrings();
-
-	private static final int PROGRESS_BAR_HEIGHT = 4;
 
 	@Provides
 	CollectionLogConfig collectionLogConfig(ConfigManager configManager)
@@ -54,24 +59,20 @@ public class CollectionLogPlugin extends Plugin
 	@Override
 	protected void startUp() throws Exception
 	{
+		overlayManager.add(overlay);
 		log.info("Start collection log percentages");
 	}
 
 	@Override
 	protected void shutDown() throws Exception
 	{
+		overlayManager.remove(overlay);
 		log.info("Stop collection log percentages");
 	}
 
 	@Subscribe
 	public void onGameTick(GameTick gameTick)
 	{
-		ItemContainer items = client.getItemContainer(InventoryID.COLLECTION_LOG);
-		if (items != null)
-		{
-			log.info(items.getItems().length + "");
-		}
-
 		// Getting category
 		int tabIndex = client.getVar(Varbits.COLLECTION_LOG_TAB);
 		List<CollectionLogCategories> currentTabCategories = CollectionLogCategories.fromTabIndex(tabIndex);
@@ -87,11 +88,9 @@ public class CollectionLogPlugin extends Plugin
 			{
 				float obtained = Float.valueOf(m.group(1));
 				float quantity = Float.valueOf(m.group(2));
-				float progress = obtained / quantity;
 
 				setConfigValue(category, ConfigKey.OBTAINED, obtained);
 				setConfigValue(category, ConfigKey.QUANTITY, quantity);
-				setConfigValue(category, ConfigKey.PROGRESS, progress);
 
 				setPercentageText();
 			}
@@ -104,7 +103,6 @@ public class CollectionLogPlugin extends Plugin
 		int tabIndex = client.getVar(Varbits.COLLECTION_LOG_TAB);
 		List<CollectionLogCategories> currentTabCategories = CollectionLogCategories.fromTabIndex(tabIndex);
 		Widget widgetItemList = itemListWidgetFromTab(tabIndex);
-
 		for (int i = 0; i < currentTabCategories.size(); i++)
 		{
 			CollectionLogCategories category = currentTabCategories.get(i);
@@ -123,7 +121,7 @@ public class CollectionLogPlugin extends Plugin
 
 		// Title percentage
 		float collectionLogProgress = getCollectionLogProgress();
-		Widget titleWidget = client.getWidget(WidgetInfo.COLLECTION_LOG_ELEMENTS).getChild(1);
+		Widget titleWidget = client.getWidget(WidgetInfo.COLLECTION_LOG_ROOT).getChild(1);
 		setWidgetProgress(titleWidget, "Collection Log", collectionLogProgress, 1);
 	}
 
@@ -137,15 +135,15 @@ public class CollectionLogPlugin extends Plugin
 			widgetText += " <col=" + PERC_COLOR + ">(" + strPerc + "%)</col>";
 		}
 
-		if (config.colorItems() && progress >= 1.0f)
+		if (config.colorCompletedItems() && progress >= 1.0f)
 		{
-			widgetText = "<col=19f052>" + widgetText + "</col>";
+			widgetText = "<col=" + COMPLETED_COLOR + ">" + widgetText + "</col>";
 		}
 
 		widget.setText(widgetText);
 	}
 
-	private float getTabProgress(CollectionLogTabs tab)
+	float getTabProgress(CollectionLogTabs tab)
 	{
 		float totalObtained = getTabStoredTotal(tab, ConfigKey.OBTAINED);
 		float totalQuantity = getTabStoredTotal(tab, ConfigKey.QUANTITY);
@@ -158,13 +156,13 @@ public class CollectionLogPlugin extends Plugin
 		return totalObtained / totalQuantity;
 	}
 
-	private float getTabStoredTotal(CollectionLogTabs tab, ConfigKey configKey)
+	private float getTabStoredTotal(CollectionLogTabs tab, ConfigKey key)
 	{
 		List<CollectionLogCategories> categories = CollectionLogCategories.fromTab(tab);
 		float total = 0f;
 		for (CollectionLogCategories category : categories)
 		{
-			String value = getStoredValue(category, configKey);
+			String value = getStoredValue(category, key);
 			if (value == null)
 			{
 				return -1f;
@@ -174,7 +172,7 @@ public class CollectionLogPlugin extends Plugin
 		return total;
 	}
 
-	private float getCollectionLogProgress()
+	float getCollectionLogProgress()
 	{
 		CollectionLogTabs[] tabs = CollectionLogTabs.values();
 
@@ -200,7 +198,7 @@ public class CollectionLogPlugin extends Plugin
 		return totalObtained / totalQuantity;
 	}
 
-	private float getCategoryProgress(CollectionLogCategories category)
+	float getCategoryProgress(CollectionLogCategories category)
 	{
 		String storedObt = getStoredValue(category, ConfigKey.OBTAINED);
 		String storedQnty = getStoredValue(category, ConfigKey.QUANTITY);
@@ -213,16 +211,16 @@ public class CollectionLogPlugin extends Plugin
 		return Float.valueOf(storedObt) / Float.valueOf(storedQnty);
 	}
 
-	private void clearConfig()
+	private Widget itemListWidgetFromTab(int tab)
 	{
-		String group = ConfigKey.CONFIG_GROUP + "." + client.getLocalPlayer().getName();
-		List<String> configs = configManager.getConfigurationKeys(group);
+		WidgetInfo widgetInfo = CollectionLogTabs.listWidgetInfoFromTabIndex(tab);
 
-		for (String config : configs)
+		if (widgetInfo == null)
 		{
-			List<String> split = DOT_SPLITTER.splitToList(config);
-			configManager.unsetConfiguration(group, split.get(split.size() - 2) + "." + split.get(split.size() - 1));
+			return null;
 		}
+
+		return client.getWidget(widgetInfo);
 	}
 
 	private String getStoredValue(CollectionLogCategories category, ConfigKey configKey)
@@ -241,15 +239,15 @@ public class CollectionLogPlugin extends Plugin
 		configManager.setConfiguration(group, key, value);
 	}
 
-	private Widget itemListWidgetFromTab(int tab)
+	private void clearConfig()
 	{
-		WidgetInfo widgetInfo = CollectionLogTabs.listWidgetInfoFromTabIndex(tab);
+		String group = ConfigKey.CONFIG_GROUP + "." + client.getLocalPlayer().getName();
+		List<String> configs = configManager.getConfigurationKeys(group);
 
-		if (widgetInfo == null)
+		for (String config : configs)
 		{
-			return null;
+			List<String> split = DOT_SPLITTER.splitToList(config);
+			configManager.unsetConfiguration(group, split.get(split.size() - 2) + "." + split.get(split.size() - 1));
 		}
-
-		return client.getWidget(widgetInfo);
 	}
 }

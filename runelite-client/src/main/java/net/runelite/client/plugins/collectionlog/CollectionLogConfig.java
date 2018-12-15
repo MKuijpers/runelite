@@ -8,11 +8,11 @@ import net.runelite.client.config.ConfigItem;
 public interface CollectionLogConfig extends Config
 {
 	@ConfigItem(
-		keyName = "colorItems",
-		name = "Color items",
+		keyName = "colorCompletedItems",
+		name = "Color completed items",
 		description = "Color collection log items when completed"
 	)
-	default boolean colorItems()
+	default boolean colorCompletedItems()
 	{
 		return true;
 	}
@@ -23,6 +23,26 @@ public interface CollectionLogConfig extends Config
 		description = "Show the progression percentages next to the collection log names."
 	)
 	default boolean showPercentages()
+	{
+		return true;
+	}
+
+	@ConfigItem(
+		keyName = "showHoverPercentages",
+		name = "Show hover percentages",
+		description = "Show the progression percentages on hover."
+	)
+	default boolean showHoverPercentages()
+	{
+		return true;
+	}
+
+	@ConfigItem(
+		keyName = "showProgressBars",
+		name = "Show progress bars",
+		description = "Show progression progress bars."
+	)
+	default boolean showProgressBars()
 	{
 		return true;
 	}

@@ -1,4 +1,4 @@
-package net.runelite.client.plugins.collectionlog;
+package net.runelite.client.plugins.collectionlog.config;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -8,7 +8,6 @@ import lombok.RequiredArgsConstructor;
 public enum ConfigKey
 {
 	CONFIG_GROUP("collection_log"),
-	PROGRESS("PROGRESS"),
 	OBTAINED("OBTAINED"),
 	QUANTITY("QUANTITY");
 

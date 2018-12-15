@@ -16,6 +16,24 @@ public enum CollectionLogTabs
 
 	private final String displayName;
 
+	public static CollectionLogTabs fromTabIndex(int tab)
+	{
+		switch (tab)
+		{
+			case 0:
+				return BOSSES;
+			case 1:
+				return RAIDS;
+			case 2:
+				return CLUES;
+			case 3:
+				return MINIGAMES;
+			case 4:
+				return OTHER;
+		}
+		return null;
+	}
+
 	public static WidgetInfo toTitleWidgetInfo(CollectionLogTabs tab)
 	{
 		switch (tab)
@@ -35,25 +53,7 @@ public enum CollectionLogTabs
 		}
 	}
 
-	public static CollectionLogTabs fromTabIndex(int tab)
-	{
-		switch (tab)
-		{
-			case 0:
-				return BOSSES;
-			case 1:
-				return RAIDS;
-			case 2:
-				return CLUES;
-			case 3:
-				return MINIGAMES;
-			case 4:
-				return OTHER;
-		}
-		return null;
-	}
-
-	public static WidgetInfo listWidgetInfoFromTab(CollectionLogTabs tab)
+	public static WidgetInfo toListWidgetInfo(CollectionLogTabs tab)
 	{
 		switch (tab)
 		{
@@ -82,6 +82,6 @@ public enum CollectionLogTabs
 			return null;
 		}
 
-		return listWidgetInfoFromTab(tab);
+		return toListWidgetInfo(tab);
 	}
 }
